@@ -12,6 +12,14 @@ const (
 	StatusCanceled  OrderStatus = "CANCELED"
 )
 
+var StatusTransitions = map[OrderStatus]map[OrderStatus]bool{
+	StatusPending:   {StatusConfirmed: true, StatusCanceled: true},
+	StatusConfirmed: {StatusShipped: true, StatusCanceled: true},
+	StatusShipped:   {StatusDelivered: true},
+	StatusDelivered: {},
+	StatusCanceled:  {},
+}
+
 type OrderLine struct {
 	ProductID      string `json:"product_id"`
 	Quantity       int    `json:"quantity"`
