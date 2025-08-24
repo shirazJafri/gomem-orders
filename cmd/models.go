@@ -27,6 +27,10 @@ type OrderLine struct {
 	LineTotalCents int64  `json:"line_total_cents"`
 }
 
+func (orderLine *OrderLine) SetLineTotal() {
+	orderLine.LineTotalCents = int64(orderLine.Quantity) * orderLine.UnitPriceCents
+}
+
 type Order struct {
 	ID         string            `json:"id"`
 	CustomerID string            `json:"customer_id"`
@@ -39,4 +43,18 @@ type Order struct {
 	CreatedAt  time.Time         `json:"created_at"`
 	UpdatedAt  time.Time         `json:"updated_at"`
 	DeletedAt  *time.Time        `json:"deleted_at,omitempty"`
+}
+
+type CreateOrderResponse struct {
+	ID         string      `json:"id"`
+	Status     OrderStatus `json:"status"`
+	TotalCents int64       `json:"total_cents"`
+}
+
+func (order *Order) SetTotal() {
+	order.TotalCents = 0
+	for i := range order.Lines {
+		order.Lines[i].SetLineTotal()
+		order.TotalCents += order.Lines[i].LineTotalCents
+	}
 }
