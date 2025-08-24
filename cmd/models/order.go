@@ -63,3 +63,15 @@ func (order *Order) CanTransitionTo(newStatus OrderStatus) bool {
 	allowed, ok := StatusTransitions[order.Status][newStatus]
 	return allowed && ok
 }
+
+func (order *Order) SoftDelete() bool {
+	if order.DeletedAt != nil {
+		return false
+	}
+
+	now := time.Now().UTC()
+	order.DeletedAt = &now
+	order.UpdatedAt = now
+	order.Version++
+	return true
+}
