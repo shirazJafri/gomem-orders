@@ -18,14 +18,15 @@ func NewStore() *Store {
 }
 
 func (s *Store) DeleteOrder(id string) bool {
-	s.lock.Lock()
-	defer s.lock.Unlock()
 
 	order, ok := s.GetOrder(id)
 	if !ok {
 		log.Printf("Order with ID %s not found\n", id)
 		return false
 	}
+
+	s.lock.Lock()
+	defer s.lock.Unlock()
 
 	return order.SoftDelete()
 }
