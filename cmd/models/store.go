@@ -4,6 +4,8 @@ import (
 	"log"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Store struct {
@@ -16,6 +18,22 @@ func NewStore() *Store {
 		Orders: make(map[string]*Order),
 		lock:   sync.RWMutex{},
 	}
+}
+
+func (s *Store) AddOrder(order *Order) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	order.ID = uuid.New().String()
+	order.SetTotal()
+	order.Status = StatusPending
+	order.Version = 1
+
+	now := time.Now().UTC()
+	order.CreatedAt = now
+	order.UpdatedAt = now
+
+	s.Orders[order.ID] = order
 }
 
 func (s *Store) DeleteOrder(id string) bool {
