@@ -58,3 +58,8 @@ func (order *Order) SetTotal() {
 		order.TotalCents += order.Lines[i].LineTotalCents
 	}
 }
+
+func (order *Order) CanTransitionTo(newStatus OrderStatus) bool {
+	allowed, ok := StatusTransitions[order.Status][newStatus]
+	return allowed && ok
+}
