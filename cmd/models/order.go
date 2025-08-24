@@ -75,3 +75,7 @@ func (order *Order) SoftDelete() bool {
 	order.Version++
 	return true
 }
+
+func (order *Order) isSoftDeleted() bool {
+	return order.DeletedAt != nil
+}
