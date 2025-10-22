@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -36,18 +37,17 @@ func (s *Store) AddOrder(order *Order) {
 	s.Orders[order.ID] = order
 }
 
-func (s *Store) DeleteOrder(id string) bool {
-
-	order, ok := s.GetOrder(id)
-	if !ok {
-		log.Printf("Order with ID %s not found\n", id)
-		return false
-	}
-
+func (s *Store) DeleteOrder(id string) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	return order.SoftDelete()
+	order, ok := s.Orders[id]
+	if !ok || order.IsSoftDeleted() {
+		return fmt.Errorf("order with ID %s not found", id)
+	}
+
+	order.SoftDelete()
+	return nil
 }
 
 func (s *Store) GetOrder(id string) (*Order, bool) {
@@ -56,7 +56,7 @@ func (s *Store) GetOrder(id string) (*Order, bool) {
 
 	order, orderExists := s.Orders[id]
 
-	if orderExists && order.isSoftDeleted() {
+	if orderExists && order.IsSoftDeleted() {
 		return nil, false
 	}
 	return order, orderExists
@@ -68,7 +68,7 @@ func (s *Store) GetOrders() []*Order {
 
 	orders := make([]*Order, 0, len(s.Orders))
 	for _, order := range s.Orders {
-		if !order.isSoftDeleted() {
+		if !order.IsSoftDeleted() {
 			orders = append(orders, order)
 		}
 	}

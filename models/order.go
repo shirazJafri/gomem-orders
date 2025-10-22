@@ -65,7 +65,7 @@ func (order *Order) CanTransitionTo(newStatus OrderStatus) bool {
 }
 
 func (order *Order) SoftDelete() bool {
-	if order.DeletedAt != nil {
+	if order.IsSoftDeleted() {
 		return false
 	}
 
@@ -76,6 +76,6 @@ func (order *Order) SoftDelete() bool {
 	return true
 }
 
-func (order *Order) isSoftDeleted() bool {
+func (order *Order) IsSoftDeleted() bool {
 	return order.DeletedAt != nil
 }
